@@ -1,0 +1,32 @@
+{
+  "name": "VW-BOT",
+  "version": "1.0.0",
+  "main": "./src/app.js",
+  "license": "MIT",
+  "scripts": {
+    "serve": "nodemon ./src/app.js --exec babel-node",
+    "clean": "rm -rf build && mkdir build",
+    "build-babel": "babel -d ./build ./src -s",
+    "build": "npm run clean && npm run build-babel",
+    "migrate:test": "./node_modules/.bin/sequelize db:migrate --config ./build/config/config.js --env test",
+    "migrate:dev": "./node_modules/.bin/sequelize db:migrate"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.2.7",
+    "apollo-client": "^2.3.8",
+    "apollo-link-http": "^1.5.4",
+    "discord.js": "^11.4.1",
+    "graphql": "^0.13.2",
+    "graphql-tag": "^2.9.2",
+    "node-fetch": "^2.2.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/node": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.52",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "babel-plugin-inline-dotenv": "^1.1.2",
+    "nodemon": "^1.18.3"
+  }
+}

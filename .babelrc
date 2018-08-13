@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    "@babel/plugin-proposal-object-rest-spread",
+    "inline-dotenv"
+  ],
+  "presets": [
+    "@babel/env"
+  ]
+}
