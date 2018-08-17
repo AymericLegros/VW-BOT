@@ -16,6 +16,7 @@
     "apollo-client": "^2.3.8",
     "apollo-link-http": "^1.5.4",
     "discord.js": "^11.4.1",
+    "got": "^9.0.0",
     "graphql": "^0.13.2",
     "graphql-tag": "^2.9.2",
     "node-fetch": "^2.2.0"

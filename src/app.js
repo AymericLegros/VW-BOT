@@ -1,6 +1,7 @@
 import { Client, RichEmbed } from 'discord.js';
 
 // import './apollo'
+import './twitch'
 
 const bot = new Client();
 
@@ -8,6 +9,8 @@ bot.on('ready', async () => {
   console.log(`Logged in as ${bot.user.tag}!`);
   await bot.user.setActivity('Warframe', { type: 'PLAYING' })
 });
+
+
 
 bot.on('message', message => {
   // If the message is "how to embed"
@@ -46,5 +49,5 @@ bot.on('message', message => {
 
 // const twitchStream = new WebhookClient('webhook id', 'webhook token');
 // twitchStream.send('I am now alive!');
-
+// console.log('process.env.BOT_TOKEN', process.env.BOT_TOKEN)
 bot.login(process.env.BOT_TOKEN);
