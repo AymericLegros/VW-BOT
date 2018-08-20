@@ -1,0 +1,29 @@
+{
+    "content": "Opérateur, la transmission avec [DE] est établie. Venez y participer! @everyone",
+    "embeds": [{
+      "title": "{{ChannelUrl}}",
+      "url": "{{ChannelUrl}}",
+      "color": 6570404,
+      "footer": {
+        "text": "{{CreatedAt}}"
+      },
+      "image": {
+        "url": "{{StreamPreview}}"
+      },
+      "thumbnail": {
+        "url": "https://static-cdn.jtvnw.net/jtv_user_pictures/1d464ec0-52c7-400b-8cd9-c3a734c6ac24-profile_image-150x150.png"
+      },
+      "author": {
+        "name": "{{ChannelName}}",
+        "url":"{{ChannelUrl}}",
+        "icon_url":  "https://static-cdn.jtvnw.net/jtv_user_pictures/1d464ec0-52c7-400b-8cd9-c3a734c6ac24-profile_image-150x150.png"
+      },
+      "fields": [
+        {
+          "name": "Participants",
+          "value": "{{CurrentViewers}}",
+          "inline": true
+        }
+      ]
+    }]
+  }
