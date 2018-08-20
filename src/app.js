@@ -1,8 +1,12 @@
 import { Client, RichEmbed } from 'discord.js';
 
-// import './apollo'
-import './twitch'
+import { apollo } from './apollo'
+import gql from 'graphql-tag';
+// import './twitch'
 
+const config = {
+  prefix: 'vw'
+}
 const bot = new Client();
 
 bot.on('ready', async () => {
@@ -10,40 +14,80 @@ bot.on('ready', async () => {
   await bot.user.setActivity('Warframe', { type: 'PLAYING' })
 });
 
-
-
 bot.on('message', message => {
-  // If the message is "how to embed"
-  if (message.content === 'test') {
-    // We can create embeds using the MessageEmbed constructor
-    // Read more about all that you can do with the constructor
-    // over at https://discord.js.org/#/docs/main/stable/class/RichEmbed
-    const embed = new RichEmbed()
-      // Set the title of the field
-      .setTitle('A slick little embed')
-      // Set the color of the embed
-      .setColor(0xFF0000)
-      // Set the main content of the embed
-      .setDescription('Hello, this is a slick embed!')
+  if (message.author.bot) return;
 
-      .setFooter('LOLOLO')
+  if(message.content.indexOf(config.prefix) !== 0) return;
 
-      .setThumbnail('https://vignette.wikia.nocookie.net/warframe/images/4/4d/DENitainExtract.png')
-
-      .setImage('https://preview.ibb.co/f9ZDU7/maxresdefault.jpg')
-
-      .setAuthor('Neptius', 'https://simgbb.com/images/users/av_fsnLTv.jpg')
-
-      .setTimestamp(new Date())
-
-      .addBlankField(true)
-
-      .addField('lolll', 'Lorem ipsum dolorfef ezefefezfze <em>LOOOOOO</em>', true )
-      
-      .addBlankField(true)
-    // Send the embed to the same channel as the message
-    message.channel.send(embed);
+  if (message.content.indexOf('item') > 0) {
+    const tabCommand = message.content.split(' ')
+    if (!tabCommand[2]) return
+    tabCommand.shift()
+    tabCommand.shift()
+    const name = tabCommand.join(' ')
+    console.log('Start')
+    apollo.query({
+      query: gql`
+        query ($filter: JSON) {
+          getOneItemBy (filter: $filter) {
+            name
+            uniqueName
+            description
+            category
+            imageName
+            data
+          }
+        }
+      `,
+      variables: {
+        filter: {
+          name
+        } 
+      }
+    })
+    .then(data => {
+      console.log('Traitement')
+      const item = data.data.getOneItemBy
+      let msg = new RichEmbed()
+          msg.setTitle(item.name)
+          msg.setDescription(item.description)
+      return message.channel.send(msg)
+    })
+    .catch(error => console.error(error));
+    console.log('End')
   }
+  // If the message is "how to embed"
+  // if (message.content === 'test') {
+  //   // We can create embeds using the MessageEmbed constructor
+  //   // Read more about all that you can do with the constructor
+  //   // over at https://discord.js.org/#/docs/main/stable/class/RichEmbed
+  //   const embed = new RichEmbed()
+  //     // Set the title of the field
+  //     .setTitle('A slick little embed')
+  //     // Set the color of the embed
+  //     .setColor(0xFF0000)
+  //     // Set the main content of the embed
+  //     .setDescription('Hello, this is a slick embed!')
+
+  //     .setFooter('LOLOLO')
+
+  //     .setThumbnail('https://vignette.wikia.nocookie.net/warframe/images/4/4d/DENitainExtract.png')
+
+  //     .setImage('https://preview.ibb.co/f9ZDU7/maxresdefault.jpg')
+
+  //     .setAuthor('Neptius', 'https://simgbb.com/images/users/av_fsnLTv.jpg')
+
+  //     .setTimestamp(new Date())
+
+  //     .addBlankField(true)
+
+  //     .addField('lolll', 'Lorem ipsum dolorfef ezefefezfze <em>LOOOOOO</em>', true )
+      
+  //     .addBlankField(true)
+  //   // Send the embed to the same channel as the message
+  //   message.channel.send(embed);
+  // }
+
 });
 
 
