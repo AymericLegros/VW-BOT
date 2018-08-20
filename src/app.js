@@ -25,7 +25,6 @@ bot.on('message', message => {
     tabCommand.shift()
     tabCommand.shift()
     const name = tabCommand.join(' ')
-    console.log('Start')
     apollo.query({
       query: gql`
         query ($filter: JSON) {
@@ -46,15 +45,20 @@ bot.on('message', message => {
       }
     })
     .then(data => {
-      console.log('Traitement')
       const item = data.data.getOneItemBy
       let msg = new RichEmbed()
           msg.setTitle(item.name)
           msg.setDescription(item.description)
+          msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+          msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+          msg.addField('Category', item.category, true)
+          console.log('item.omegaAttenuation', item.data.omegaAttenuation)
+          if (typeof item.data.omegaAttenuation !== 'undefined') {
+            msg.addField('Dispositon', item.data.omegaAttenuation, true)
+          }
       return message.channel.send(msg)
     })
     .catch(error => console.error(error));
-    console.log('End')
   }
   // If the message is "how to embed"
   // if (message.content === 'test') {
