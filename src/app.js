@@ -5,61 +5,60 @@ import gql from 'graphql-tag';
 // import './twitch'
 
 const config = {
-  prefix: 'vw'
+  prefix: '+'
 }
+
 const bot = new Client();
 
 bot.on('ready', async () => {
-  console.log(`Logged in as ${bot.user.tag}!`);
+  console.log(`Logged in as ${bot.user.tag}!`)
   await bot.user.setActivity('Warframe', { type: 'PLAYING' })
 });
 
 bot.on('message', message => {
-  if (message.author.bot) return;
+  if (message.author.bot) return
+  if (message.content.indexOf(config.prefix) !== 0) return
 
-  if(message.content.indexOf(config.prefix) !== 0) return;
+  const tabCommand = message.content.split(' ')
 
-  if (message.content.indexOf('item') > 0) {
-    const tabCommand = message.content.split(' ')
-    if (!tabCommand[2]) return
-    tabCommand.shift()
-    tabCommand.shift()
-    const name = tabCommand.join(' ')
-    apollo.query({
-      query: gql`
-        query ($filter: JSON) {
-          getOneItemBy (filter: $filter) {
-            name
-            uniqueName
-            description
-            category
-            imageName
-            data
-          }
-        }
-      `,
-      variables: {
-        filter: {
+  tabCommand.shift()
+  
+  const name = tabCommand.join(' ')
+  apollo.query({
+    query: gql`
+      query ($filter: JSON) {
+        getOneItemBy (filter: $filter) {
           name
-        } 
+          uniqueName
+          description
+          category
+          imageName
+          data
+        }
       }
-    })
-    .then(data => {
-      const item = data.data.getOneItemBy
-      let msg = new RichEmbed()
-          msg.setTitle(item.name)
-          msg.setDescription(item.description)
-          msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-          msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-          msg.addField('Category', item.category, true)
-          console.log('item.omegaAttenuation', item.data.omegaAttenuation)
-          if (typeof item.data.omegaAttenuation !== 'undefined') {
-            msg.addField('Dispositon', item.data.omegaAttenuation, true)
-          }
-      return message.channel.send(msg)
-    })
-    .catch(error => console.error(error));
-  }
+    `,
+    variables: {
+      filter: {
+        name
+      } 
+    }
+  })
+  .then(data => {
+    const item = data.data.getOneItemBy
+    let msg = new RichEmbed()
+        msg.setTitle(item.name)
+        msg.setDescription(item.description)
+        msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+        msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+        msg.addField('Category', item.category, true)
+        console.log('item.omegaAttenuation', item.data.omegaAttenuation)
+        if (typeof item.data.omegaAttenuation !== 'undefined') {
+          msg.addField('Dispositon', item.data.omegaAttenuation, true)
+        }
+    return message.channel.send(msg)
+  })
+  .catch(error => console.error(error));
+  
   // If the message is "how to embed"
   // if (message.content === 'test') {
   //   // We can create embeds using the MessageEmbed constructor
