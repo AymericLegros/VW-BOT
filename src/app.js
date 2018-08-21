@@ -2,7 +2,6 @@ import { Client, RichEmbed } from 'discord.js';
 
 import { apollo } from './apollo'
 import gql from 'graphql-tag';
-// import './twitch'
 
 const config = {
   prefix: '+'
@@ -12,18 +11,20 @@ const bot = new Client();
 
 bot.on('ready', async () => {
   console.log(`Logged in as ${bot.user.tag}!`)
-  await bot.user.setActivity('Warframe', { type: 'PLAYING' })
+  await bot.user.setActivity(`Warframe`, { type: 'PLAYING' })
 });
 
 bot.on('message', message => {
   if (message.author.bot) return
   if (message.content.indexOf(config.prefix) !== 0) return
 
-  const tabCommand = message.content.split(' ')
+  const messageTab = message.content.split(' ')
+  messageTab.shift()
 
-  tabCommand.shift()
+  if (messageTab.length <= 0) return
   
-  const name = tabCommand.join(' ')
+  const name = messageTab.join(' ')
+
   apollo.query({
     query: gql`
       query ($filter: JSON) {
@@ -45,54 +46,45 @@ bot.on('message', message => {
   })
   .then(data => {
     const item = data.data.getOneItemBy
-    let msg = new RichEmbed()
-        msg.setTitle(item.name)
-        msg.setDescription(item.description)
-        msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-        msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-        msg.addField('Category', item.category, true)
-        console.log('item.omegaAttenuation', item.data.omegaAttenuation)
-        if (typeof item.data.omegaAttenuation !== 'undefined') {
-          msg.addField('Dispositon', item.data.omegaAttenuation, true)
-        }
-    return message.channel.send(msg)
+    console.log('item', item)
+    if (item !== null) {
+      let msg = new RichEmbed()
+
+      msg.setTitle(`__${item.name}__`)
+      msg.setDescription(item.description)
+      // msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+      msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+      msg.addField('Category', item.category, true)
+      
+      if (typeof item.data.type !== 'undefined') msg.addField('Type', item.data.type, true)
+      if (typeof item.data.wikiaUrl !== 'undefined') msg.addField('Wiki', `[${item.name}](${item.data.wikiaUrl})`, true)
+      if (typeof item.data.masteryReq !== 'undefined') msg.addField('Mastery', item.data.masteryReq, true)
+      if (typeof item.data.disposition !== 'undefined') msg.addField('Dispositon', formatDisposition(item.data.disposition, item.data.omegaAttenuation), true)
+      if (typeof item.data.rarity !== 'undefined') msg.addField('Rarity', item.data.rarity, true)
+      if (typeof item.data.fusionLimit !== 'undefined') msg.addField('Level', item.data.fusionLimit, true)
+      
+      message.channel.send(msg)
+    }
   })
   .catch(error => console.error(error));
+})
+
+const formatDisposition = (disposition, omegaAttenuation) => {
+  let dispositonStr = ''
+  for (let i = 0; i < 5; i++) {
+    dispositonStr += i < disposition ? '⬢' : '⬡'
+  }
+  return `${dispositonStr} (${omegaAttenuation})`
+}
+
+bot.on('guildMemberAdd', member => {
+  console.log(member.guild)
+  console.log(member.guild.roles)
   
-  // If the message is "how to embed"
-  // if (message.content === 'test') {
-  //   // We can create embeds using the MessageEmbed constructor
-  //   // Read more about all that you can do with the constructor
-  //   // over at https://discord.js.org/#/docs/main/stable/class/RichEmbed
-  //   const embed = new RichEmbed()
-  //     // Set the title of the field
-  //     .setTitle('A slick little embed')
-  //     // Set the color of the embed
-  //     .setColor(0xFF0000)
-  //     // Set the main content of the embed
-  //     .setDescription('Hello, this is a slick embed!')
-
-  //     .setFooter('LOLOLO')
-
-  //     .setThumbnail('https://vignette.wikia.nocookie.net/warframe/images/4/4d/DENitainExtract.png')
-
-  //     .setImage('https://preview.ibb.co/f9ZDU7/maxresdefault.jpg')
-
-  //     .setAuthor('Neptius', 'https://simgbb.com/images/users/av_fsnLTv.jpg')
-
-  //     .setTimestamp(new Date())
-
-  //     .addBlankField(true)
-
-  //     .addField('lolll', 'Lorem ipsum dolorfef ezefefezfze <em>LOOOOOO</em>', true )
-      
-  //     .addBlankField(true)
-  //   // Send the embed to the same channel as the message
-  //   message.channel.send(embed);
-  // }
-
-});
-
+  member.guild.roles.find(role => role.name === "Testeur");
+  bot.channels.find("name","c-text")
+              .send(`Bienvenue opérateur: ${member.user.username}!`)
+})
 
 // const twitchStream = new WebhookClient('webhook id', 'webhook token');
 // twitchStream.send('I am now alive!');
