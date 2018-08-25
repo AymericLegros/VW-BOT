@@ -21,6 +21,12 @@ bot.on('message', message => {
   const messageTab = message.content.split(' ')
   messageTab.shift()
 
+  let raw = false
+  if (messageTab[messageTab.length - 1] === 'raw') {
+    raw = true
+    messageTab.pop()
+  } 
+
   if (messageTab.length <= 0) return
   
   const name = messageTab.join(' ')
@@ -45,24 +51,31 @@ bot.on('message', message => {
     }
   })
   .then(data => {
-    const item = data.data.getOneItemBy
-    console.log('item', item)
+    const item = JSON.parse(JSON.stringify(data.data.getOneItemBy))
+    // console.log('item', item)
     if (item !== null) {
       let msg = new RichEmbed()
 
-      msg.setTitle(`__${item.name}__`)
-      msg.setDescription(item.description)
-      // msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-      msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
-      msg.addField('Category', item.category, true)
-      
-      if (typeof item.data.type !== 'undefined') msg.addField('Type', item.data.type, true)
-      if (typeof item.data.wikiaUrl !== 'undefined') msg.addField('Wiki', `[${item.name}](${item.data.wikiaUrl})`, true)
-      if (typeof item.data.masteryReq !== 'undefined') msg.addField('Mastery', item.data.masteryReq, true)
-      if (typeof item.data.disposition !== 'undefined') msg.addField('Dispositon', formatDisposition(item.data.disposition, item.data.omegaAttenuation), true)
-      if (typeof item.data.rarity !== 'undefined') msg.addField('Rarity', item.data.rarity, true)
-      if (typeof item.data.fusionLimit !== 'undefined') msg.addField('Level', item.data.fusionLimit, true)
-      
+      if (!raw) { 
+        msg.setTitle(`__${item.name}__`)
+        msg.setDescription(item.description)
+        // msg.setThumbnail(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+        msg.setImage(`https://raw.githubusercontent.com/WFCD/warframe-items/development/data/img/${item.imageName}`)
+        msg.addField('Category', item.category, true)
+        
+        if (typeof item.data.type !== 'undefined') msg.addField('Type', item.data.type, true)
+        if (typeof item.data.wikiaUrl !== 'undefined') msg.addField('Wiki', `[${item.name}](${item.data.wikiaUrl})`, true)
+        if (typeof item.data.masteryReq !== 'undefined') msg.addField('Mastery', item.data.masteryReq, true)
+        if (typeof item.data.disposition !== 'undefined') msg.addField('Dispositon', formatDisposition(item.data.disposition, item.data.omegaAttenuation), true)
+        if (typeof item.data.rarity !== 'undefined') msg.addField('Rarity', item.data.rarity, true)
+        if (typeof item.data.fusionLimit !== 'undefined') msg.addField('Level', item.data.fusionLimit, true)
+      } else {
+        delete item.data.patchlogs
+        let data = JSON.stringify(item.data)
+        data = data.substring(0, 2041)
+        msg.setDescription('```' + `${data}` + '```');
+      }
+
       message.channel.send(msg)
     }
   })
